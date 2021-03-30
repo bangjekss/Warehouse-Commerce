@@ -1,0 +1,68 @@
+{
+	"name": "nature_goods_client",
+	"version": "0.1.0",
+	"private": true,
+	"dependencies": {
+		"@coreui/chartjs": "^2.0.0",
+		"@coreui/coreui": "^3.4.0",
+		"@coreui/icons": "^2.0.0-rc.0",
+		"@coreui/icons-react": "^1.0.2",
+		"@coreui/react": "^3.4.0",
+		"@coreui/react-chartjs": "^1.0.1",
+		"@coreui/utils": "^1.3.1",
+		"@fortawesome/fontawesome-svg-core": "^1.2.34",
+		"@fortawesome/free-solid-svg-icons": "^5.15.2",
+		"@fortawesome/react-fontawesome": "^0.1.14",
+		"@material-ui/core": "^4.11.3",
+		"@material-ui/icons": "^4.11.2",
+		"@material-ui/styles": "^4.11.3",
+		"@nivo/core": "^0.67.0",
+		"@nivo/line": "^0.67.0",
+		"@reduxjs/toolkit": "^1.5.0",
+		"@testing-library/jest-dom": "^5.11.4",
+		"@testing-library/react": "^11.1.0",
+		"@testing-library/user-event": "^12.1.10",
+		"axios": "^0.21.1",
+		"bootstrap": "^4.5.3",
+		"bootstrap-icons": "^1.4.0",
+		"react": "^17.0.1",
+		"react-dom": "^17.0.1",
+		"react-hook-form": "^6.15.4",
+		"react-loader-spinner": "^4.0.0",
+		"react-reactstrap-pagination": "^2.0.3",
+		"react-redux": "^7.2.2",
+		"react-reveal": "^1.2.2",
+		"react-router-dom": "^5.2.0",
+		"react-scripts": "4.0.1",
+		"react-select": "^4.2.1",
+		"reactstrap": "^8.8.1",
+		"redux": "^4.0.5",
+		"redux-thunk": "^2.3.0",
+		"sweetalert2": "^10.15.5",
+		"web-vitals": "^0.2.4"
+	},
+	"scripts": {
+		"start": "react-scripts start",
+		"build": "react-scripts build",
+		"test": "react-scripts test",
+		"eject": "react-scripts eject"
+	},
+	"eslintConfig": {
+		"extends": [
+			"react-app",
+			"react-app/jest"
+		]
+	},
+	"browserslist": {
+		"production": [
+			">0.2%",
+			"not dead",
+			"not op_mini all"
+		],
+		"development": [
+			"last 1 chrome version",
+			"last 1 firefox version",
+			"last 1 safari version"
+		]
+	}
+}
