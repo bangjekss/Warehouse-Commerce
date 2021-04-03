@@ -1,11 +1,11 @@
 import React, { useEffect } from "react";
-import { accentColor, primaryColor, surfaceColor } from "../../helpers";
+import { accentColor, primaryColor, surfaceColor } from "../helpers";
 import { ResponsiveLine } from "@nivo/line";
 import { useDispatch, useSelector } from "react-redux";
-import { LoaderPage } from "../../components";
+import { LoaderPage } from "../components";
 import { Redirect } from "react-router-dom";
 
-const HomeAdminPage = ({ current }) => {
+const AdminDashboard = ({ current }) => {
 	const {
 		totalProfit,
 		totalClient,
@@ -420,4 +420,4 @@ const HomeAdminPage = ({ current }) => {
 	);
 };
 
-export default HomeAdminPage;
+export default AdminDashboard;

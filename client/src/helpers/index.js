@@ -12,6 +12,10 @@ const apiUrl_transaction = `${apiUrl}/transaction`;
 const primaryColor = "#f4f6ff";
 const surfaceColor = "#61B15A";
 const accentColor = "#F0A500";
+const focusColor = "#B7D7FF";
+const secondPrimaryColor = "#DFDFDF";
+const secondSurfaceColor = "#17915A";
+const secondAccentColor = "#E09E00";
 const matrixAPI_url = "https://api.distancematrix.ai/maps/api/distancematrix";
 const matrixAPI_key = "8V2fGfu36JumHiAyuQFhXuBy3f55K";
 const rajaOngkirAPI_url = "https://api.rajaongkir.com/starter/cost";
@@ -24,6 +28,10 @@ export {
 	surfaceColor,
 	primaryColor,
 	accentColor,
+	focusColor,
+	secondSurfaceColor,
+	secondPrimaryColor,
+	secondAccentColor,
 	apiUrl_admin,
 	apiUrl_cart,
 	apiDaerah_provinsi,

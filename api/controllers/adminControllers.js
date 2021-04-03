@@ -15,249 +15,100 @@ const {
 	category,
 } = require("../models");
 
-const getWarehouse = async (req, res, next) => {
-	try {
-		const getWarehouse = await warehouse.findAll();
-		const response = [];
-		getWarehouse.forEach((value) => {
-			response.push({ value: value.id, label: value.warehouse });
-		});
-		return res.status(200).send(response);
-	} catch (err) {
-		next(err);
-	}
-};
-
-const getProductsByWarehouse = async (req, res, next) => {
+const getProducts = async (req, res, next) => {
 	try {
 		let query = {
-			raw: true,
+			where: {
+				is_available: 1,
+			},
 		};
-		if (req.query.warehouse)
+		if (req.query.keyword) {
 			query.where = {
 				...query.where,
-				warehouse_id: parseInt(req.query.warehouse.id),
+				name: {
+					[Op.like]: `%${req.query.keyword}%`,
+				},
 			};
+		}
+		if (req.query.category)
+			query.where = {
+				...query.where,
+				category_id: parseInt(req.query.category),
+			};
+		if (req.query.max && req.query.min)
+			query.where = {
+				...query.where,
+				price: {
+					[Op.between]: [parseInt(req.query.min), parseInt(req.query.max)],
+				},
+			};
+		if (req.query.sort == 1)
+			query = { ...query, order: [["created_at", "DESC"]] };
+		if (req.query.sort == 2)
+			query = { ...query, order: [["created_at", "ASC"]] };
+		if (req.query.sort == 3) query = { ...query, order: [["price", "ASC"]] };
+		if (req.query.sort == 4) query = { ...query, order: [["price", "DESC"]] };
 		query = {
 			...query,
-			attributes: [
-				"id",
-				"warehouse",
-				"products.inventory.product_id",
-				"products.name",
-				"products.price",
-				"products.weight",
-				"products.description",
-				"products.inventory.stock",
-				"products.inventory.booked_stock",
-				"products.category.category",
-				// "image",
-			],
 			include: [
 				{
-					model: product,
-					attributes: [],
-					include: [
-						// { model: warehouse, attributes: [] },
-						// { model: inventory, attributes: [] },
-						{ model: category, attributes: [] },
-					],
-					require: true,
+					model: category,
 				},
 			],
-			where: { id: req.params.id },
 		};
-		const getWarehouse = await warehouse.findAll(query);
+		// const checkProductsStock = await product.findAll({
+		// 	include: [{ model: inventory }, { model: category }],
+		// });
+		// let getIndex = [];
+		// checkProductsStock.forEach((value) => {
+		// 	if (
+		// 		value.inventories[0].stock === 0 &&
+		// 		value.inventories[1].stock === 0 &&
+		// 		value.inventories[2].stock === 0
+		// 	) {
+		// 		getIndex.push(value.id);
+		// 	}
+		// });
+		// await product.update(
+		// 	{ is_available: 0 },
+		// 	{
+		// 		where: {
+		// 			id: {
+		// 				[Op.in]: getIndex,
+		// 			},
+		// 		},
+		// 	}
+		// );
+		const getProducts = await product.findAll(query);
 		const productImg = await productImage.findAll();
-		const Warehouse1 = await warehouse.findOne({
-			attributes: ["warehouse"],
-			where: (id = 1),
+		const getInventory = await inventory.findAll();
+		const getMaxPrice = await product.findOne({
+			order: [["price", "DESC"]],
 		});
-		const Warehouse2 = await warehouse.findOne({
-			attributes: ["warehouse"],
-			where: (id = 2),
+		const getMinPrice = await product.findOne({
+			order: [["price", "ASC"]],
 		});
-		const Warehouse3 = await warehouse.findOne({
-			attributes: ["warehouse"],
-			where: (id = 3),
-		});
-		const getProductImg = getWarehouse.map((value) => {
+		const productsGetImageAndStock = getProducts.map((value) => {
+			let num = 0;
+			getInventory.forEach((item) => {
+				if (item.product_id === value.id) {
+					num += item.stock;
+				}
+			});
 			return {
 				...value,
-				operationalStock: value.stock + value.booked_stock,
+				stock: num,
 				image: productImg.filter((item) => {
-					return item.dataValues.product_id === value.product_id;
+					return item.product_id === value.id;
 				}),
 			};
 		});
 		const response = {
-			Warehouse1: Warehouse1.warehouse,
-			Warehouse2: Warehouse2.warehouse,
-			Warehouse3: Warehouse3.warehouse,
-			warehouse: getProductImg,
+			maxPrice: getMaxPrice.price,
+			minPrice: getMinPrice.price,
+			products: productsGetImageAndStock,
 		};
-
 		return res.status(200).send(response);
-	} catch (err) {
-		next(err);
-	}
-};
-
-const addProductByWarehouse = async (req, res, next) => {
-	try {
-		const path = "/products";
-		const upload = pify(uploader(path, "PRD").fields([{ name: "image" }]));
-
-		upload(req, res, async (err) => {
-			const { image } = req.files;
-			const {
-				name,
-				price,
-				category_id,
-				description,
-				weight,
-				stock,
-				booked_stock,
-			} = JSON.parse(req.body.data);
-			const id = req.params.id;
-			const imagepath = image ? `${path}/${image[0].filename}` : null;
-
-			const newProduct = await product.create({
-				name,
-				price,
-				category_id,
-				description,
-				weight,
-			});
-			await inventory.create({
-				stock,
-				booked_stock,
-				product_id: newProduct.id,
-				warehouse_id: id,
-				operational_stock: stock + booked_stock,
-			});
-			const newImg = await productImage.create({
-				imagepath: imagepath,
-				product_id: newProduct.id,
-			});
-
-			if (newImg) {
-				return res.status(200).send(`Product Added`);
-			} else {
-				fs.unlinkSync(`public${imagepath}`);
-				return res.status(500).send(err);
-			}
-		});
-	} catch (err) {
-		next(err);
-	}
-};
-
-const editProduct = async (req, res, next) => {
-	try {
-		const path = "/products";
-		const upload = pify(uploader(path, "PRD").fields([{ name: "image" }]));
-		const id = req.params.id;
-
-		const pro = await productImage.findOne({
-			where: {
-				product_id: id,
-			},
-		});
-		const oldImagepath = pro.dataValues.imagepath;
-
-		upload(req, res, async (err) => {
-			const { image } = req.files;
-			const {
-				name,
-				price,
-				category_id,
-				description,
-				stock,
-				booked_stock,
-			} = JSON.parse(req.body.data);
-			const imagepath = image ? `${path}/${image[0].filename}` : oldImagepath;
-
-			await product.update(
-				{
-					name,
-					price,
-					category_id,
-					description,
-				},
-				{
-					where: {
-						id: id,
-					},
-				}
-			);
-			await inventory.update(
-				{
-					stock,
-					booked_stock,
-				},
-				{
-					where: {
-						product_id: id,
-					},
-				}
-			);
-			const newImg = await productImage.update(
-				{
-					imagepath: imagepath,
-				},
-				{
-					where: {
-						product_id: id,
-					},
-				}
-			);
-
-			if (newImg) {
-				if (image && oldImagepath !== null) {
-					fs.unlinkSync(`public${oldImagepath}`);
-					return res.status(500).send(err);
-				}
-			} else {
-				fs.unlinkSync(`public${imagepath}`);
-			}
-		});
-		return res.status(200).send(`Edited`);
-	} catch (err) {
-		next(err);
-	}
-};
-
-const deleteProduct = async (req, res, next) => {
-	try {
-		const id = req.params.id;
-
-		const pro = await productImage.findOne({
-			where: {
-				product_id: id,
-			},
-		});
-		const oldImagepath = pro.dataValues.imagepath;
-
-		if (oldImagepath) {
-			fs.unlinkSync(`public${oldImagepath}`);
-			await product.destroy({
-				where: {
-					id: id,
-				},
-			});
-			await productImage.destroy({
-				where: {
-					product_id: id,
-				},
-			});
-			await inventory.destroy({
-				where: {
-					product_id: id,
-				},
-			});
-		}
-		return res.status(200).send("Deleted Product");
 	} catch (err) {
 		next(err);
 	}
@@ -584,15 +435,10 @@ const kirimBarang = async (req, res, next) => {
 };
 
 module.exports = {
-	getWarehouse,
-	getProductsByWarehouse,
-	addProductByWarehouse,
+	getProducts,
 	getDashboard,
-	editProduct,
-	deleteProduct,
-	stockMonitoring,
 	sentPackage,
 	approveBukti,
 	rejectBukti,
-	kirimBarang
+	kirimBarang,
 };

@@ -61,8 +61,8 @@ const authReducer = (state = INITIAL_STATE, action) => {
 		case AUTH_SIGN:
 			return {
 				...state,
-				...action.payload,
 				isLogin: true,
+				...action.payload,
 			};
 		case AUTH_LOGOUT:
 			return INITIAL_STATE;

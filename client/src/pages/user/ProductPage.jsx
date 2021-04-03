@@ -13,6 +13,7 @@ import axios from "axios";
 import { accentColor, apiUrl_product } from "../../helpers";
 import Paginate from "react-reactstrap-pagination";
 import { CardProduct, UserFooter } from "../../components/user";
+import { Header } from "../../components";
 import { RESET_INITIAL_STATE } from "../../redux/types";
 
 const sortBy = [
@@ -122,6 +123,7 @@ const ProductPage = () => {
 
 	return (
 		<>
+			<Header />
 			<div style={{ paddingBlock: 50, paddingInline: 200 }}>
 				<div
 					style={{
